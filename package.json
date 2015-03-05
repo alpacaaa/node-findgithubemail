@@ -1,0 +1,32 @@
+{
+  "name": "findgithubemail",
+  "version": "0.0.3",
+  "description": "Find Github user emails (based on https://github.com/hodgesmr/FindGitHubEmail/)",
+  "main": "index.js",
+  "bin": {
+    "findgithubemail": "./cli.js"
+  },
+  "scripts": {
+    "prepublish": "./node_modules/.bin/coffee -o . -c index.coffee",
+    "test": "mocha --compilers coffee:coffee-script/register"
+  },
+  "keywords": [
+    "github",
+    "find",
+    "email"
+  ],
+  "author": "Marco Sampellegrini <babbonatale@alpacaaa.net>",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alpacaaa/node-findgithubemail"
+  },
+  "devDependencies": {
+    "coffee-script": "^1.8.0",
+    "mocha": "^2.1.0"
+  },
+  "dependencies": {
+    "bluebird": "^2.9.13",
+    "request-promise": "^0.4.0"
+  }
+}
