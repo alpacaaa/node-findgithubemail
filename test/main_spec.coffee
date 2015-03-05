@@ -56,7 +56,6 @@ describe "Find email for user", ->
     .then (result) ->
       assert.equal result.best_guess, 'test1@gmail.com'
       assert.ok !result.alternatives.length
-      assert.ok result.gravatar_match
 
       done()
 
@@ -68,17 +67,5 @@ describe "Find email for user", ->
       assert.equal result.best_guess, 'test2@gmail.com'
       assert.ok result.alternatives.length
       assert.ok 'test2@hotmail.com' in result.alternatives
-      assert.equal result.gravatar_match, false
-
-      done()
-
-
-  it "should pick the correct email address when it matches with the gravatar_id", (done) ->
-
-    mod.find 'test3'
-    .then (result) ->
-      assert.equal result.best_guess, 'test3@gmail.com'
-      assert.ok 'test3@hotmail.com' in result.alternatives
-      assert.equal result.gravatar_match, true
 
       done()

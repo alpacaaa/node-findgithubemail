@@ -9,12 +9,14 @@ module.exports = do ->
 
   access_token: null
 
+
   github_request: (path) ->
     url = "https://api.github.com/#{path}"
     if @access_token
       url += "?access_token=#{@access_token}"
 
     @request url
+
 
   request: (url) ->
     request
@@ -23,10 +25,12 @@ module.exports = do ->
       headers:
         'User-Agent': 'Just a stalker, nevermind'
 
+
   md5: (email) ->
     shasum = crypto.createHash 'md5'
     shasum.update email
     shasum.digest 'hex'
+
 
   find_emails: (res) ->
     emails = res
@@ -44,12 +48,7 @@ module.exports = do ->
 
   find_profile_email: (username) ->
     @github_request "users/#{username}"
-    .then (data) ->
-      return false unless data.email
-
-      best_guess: data.email
-      gravatar_match: true
-      alternatives: []
+    .then (data) -> data?.email
 
 
 
@@ -71,58 +70,43 @@ module.exports = do ->
         if a.count > b.count then -1 else 1
 
 
-  find_gravatar: (username) ->
-    @github_request "users/#{username}"
-    .then (data) ->
-      data.gravatar_id
-
-
   find: (username) ->
 
     profile_email = null
 
-    promise = new Promise (resolve, reject) =>
+    new Promise (resolve, reject) =>
 
-      @find_profile_email username
-      .then (data) ->
-        return resolve data if data
+      promise = @find_profile_email username
+      .then (email) =>
+        return unless email
+        promise.cancel()
+
+        resolve
+          best_guess: email
+          alternatives: []
 
       .then =>
-        return if promise.isFulfilled()
-
         @find_activity_emails username
 
       .then (emails) =>
-        return if promise.isFulfilled()
-
         unless emails.length
           return reject new Error("No emails found")
 
-        Promise.props
-          emails: emails.map (item) -> item.email
-          gravatar: @find_gravatar username
+        emails.map (item) -> item.email
 
-      .then (data) =>
-        return if promise.isFulfilled()
-
-        best_guess = data.emails.filter (email) =>
-          @md5(email) == data.gravatar
-
-        if best_guess.length == 1
-          best_guess = best_guess.pop()
-        else
-          best_guess = data.emails[0]
-
-        alternatives = data.emails.filter (item) ->
-          item != best_guess
-
-        gravatar_match = data.gravatar == @md5(best_guess)
+      .then (emails) =>
+        best_guess = emails[0]
+        alternatives = emails.splice(1)
 
 
         resolve
           best_guess: best_guess
           alternatives: alternatives
-          gravatar_match: gravatar_match
+
+
+      .cancellable()
+
+      .catch Promise.CancellationError, (->)
 
       .catch (error) ->
         reject error
