@@ -1,6 +1,6 @@
 {
   "name": "findgithubemail",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Find Github user emails (based on https://github.com/hodgesmr/FindGitHubEmail/)",
   "main": "index.js",
   "bin": {
